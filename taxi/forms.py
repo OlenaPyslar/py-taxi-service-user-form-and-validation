@@ -8,17 +8,23 @@ from taxi.models import Driver, Car
 
 class DriverCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
-        model = Driver
-        fields = UserCreationForm.Meta.fields + ("license_number", "first_name", "last_name", )
+        model = get_user_model()
+        fields = (UserCreationForm.Meta.fields +
+                  ("license_number", "first_name", "last_name", ))
 
     def clean_license_number(self):
-        license_number = self.cleaned_data["license_number"]
+        license_number = self.cleaned_data.get("license_number")
         if len(license_number) != 8:
-            raise ValidationError("License number must be 8 characters long")
-        if not license_number[:3].isalpha() or not license_number[3:].isupper():
-            raise ValidationError("License number must begin with 3 big letters")
+            raise ValidationError("License number must "
+                                  "be 8 characters long")
+        if not (license_number[:3].isalpha() and
+                license_number[:3].isupper()):
+            raise ValidationError("License number must "
+                                  "begin with 3 big letters")
         if not license_number[3:].isdigit():
-            raise ValidationError("License number must end with 3 digits")
+            raise ValidationError("License number must "
+                                  "end with 5 digits")
+        return license_number
 
 
 class DriverLicenseUpdateForm(forms.ModelForm):
@@ -27,13 +33,18 @@ class DriverLicenseUpdateForm(forms.ModelForm):
         fields = ("license_number",)
 
     def clean_license_number(self):
-        license_number = self.cleaned_data["license_number"]
+        license_number = self.cleaned_data.get("license_number")
         if len(license_number) != 8:
-            raise ValidationError("License number must be 8 characters long")
-        if not license_number[:3].isalpha() or not license_number[3:].isupper():
-            raise ValidationError("License number must begin with 3 big letters")
+            raise ValidationError("License number must "
+                                  "be 8 characters long")
+        if not (license_number[:3].isalpha() and
+                license_number[:3].isupper()):
+            raise ValidationError("License number must "
+                                  "begin with 3 big letters")
         if not license_number[3:].isdigit():
-            raise ValidationError("License number must end with 3 digits")
+            raise ValidationError("License number must "
+                                  "end with 5 digits")
+        return license_number
 
 
 class CarForm(forms.ModelForm):
@@ -42,6 +53,7 @@ class CarForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple(),
         required=False,
     )
+
     class Meta:
         model = Car
         fields = "__all__"
